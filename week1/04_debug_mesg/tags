@@ -1,0 +1,37 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+LOG_CALL	./log_util.h	39;"	d
+LOG_DEBUG	./log_util.h	57;"	d
+LOG_ERROR	./log_util.h	87;"	d
+LOG_FATAL	./log_util.h	98;"	d
+LOG_INFO	./log_util.h	67;"	d
+LOG_IS_DEBUG	./log_util.h	25;"	d
+LOG_IS_ERROR	./log_util.h	28;"	d
+LOG_IS_FATAL	./log_util.h	29;"	d
+LOG_IS_INFO	./log_util.h	26;"	d
+LOG_IS_TRACE	./log_util.h	24;"	d
+LOG_IS_WARNING	./log_util.h	27;"	d
+LOG_LVL_DEBUG	./log_util.h	15;"	d
+LOG_LVL_ERROR	./log_util.h	18;"	d
+LOG_LVL_FATAL	./log_util.h	19;"	d
+LOG_LVL_INFO	./log_util.h	16;"	d
+LOG_LVL_TRACE	./log_util.h	14;"	d
+LOG_LVL_WARNING	./log_util.h	17;"	d
+LOG_TRACE	./log_util.h	47;"	d
+LOG_WARNING	./log_util.h	77;"	d
+LOGcreateFile	./log_util.c	/^static int LOGcreateFile(struct tm *tm1, const char *src_file)$/;"	f	file:
+LOGgetLevel	./log_util.c	/^int LOGgetLevel(void)$/;"	f
+LOGlogging	./log_util.c	/^int LOGlogging(char log_type, const char *src_file, const char *func, int line_no, const char *fmt, ...)$/;"	f
+LOGsetInfo	./log_util.c	/^int LOGsetInfo(const char *dir, const char *prefix)$/;"	f
+LOGsetLevel	./log_util.c	/^int LOGsetLevel(int log_lvl)$/;"	f
+__LOG_UTIL__	./log_util.h	2;"	d
+fp_log_file	./log_util.c	/^static FILE *fp_log_file;$/;"	v	file:
+hexView	./hexView.c	/^int hexView(const char* filename) {  \/\/ 헥사 뷰어 함수의 본체$/;"	f
+log_file_prefix	./log_util.c	/^static char log_file_prefix[64];$/;"	v	file:
+log_folder	./log_util.c	/^static char log_folder[1024] = ".";$/;"	v	file:
+log_level	./log_util.c	/^static int  log_level = LOG_LVL_INFO;$/;"	v	file:
+main	./main.c	/^int main(int argc, char* argv[]) {$/;"	f

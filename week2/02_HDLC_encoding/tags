@@ -1,0 +1,18 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+CRC_SIZE	./main.c	8;"	d	file:
+CRC_TABLE_SIZE	./main.c	6;"	d	file:
+DATA_SIZE	./main.c	7;"	d	file:
+END_SIZE	./main.c	10;"	d	file:
+HDLC_encoding	./main.c	/^int HDLC_encoding(char** argv) $/;"	f
+INIT_SIZE	./main.c	9;"	d	file:
+TOTAL_SIZE	./main.c	11;"	d	file:
+crc16_ccitt	./main.c	/^unsigned short crc16_ccitt(const void *buf, int len)$/;"	f
+crctable	./main.c	/^static unsigned short crctable[256];$/;"	v	file:
+main	./main.c	/^int main(int argc, char** argv)$/;"	f
+make_crc_table	./main.c	/^void make_crc_table( void ) {$/;"	f
+print_crc_table	./main.c	/^void print_crc_table(void)$/;"	f
