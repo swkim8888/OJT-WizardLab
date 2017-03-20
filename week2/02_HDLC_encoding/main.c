@@ -8,7 +8,9 @@
 #define CRC_SIZE	2
 #define INIT_SIZE	1
 #define END_SIZE	1
-#define TOTAL_SIZE	(DATA_SIZE + CRC_SIZE + INIT_SIZE + END_SIZE)
+//#define TOTAL_SIZE	(DATA_SIZE + CRC_SIZE + INIT_SIZE + END_SIZE)
+#define TOTAL_SIZE	50
+
 
 /*
  *declare function
@@ -39,12 +41,13 @@ int main(int argc, char** argv)
 
 int HDLC_encoding(char** argv) 
 {
-	unsigned char buffLen[DATA_SIZE];	//길이
-	unsigned char crc_buf[CRC_SIZE];	//
-	unsigned char Total_buf[TOTAL_SIZE];	//
+	unsigned char data_buf[DATA_SIZE] = {0} ;	// 데이터 버퍼
+	unsigned char crc_buf[CRC_SIZE] = {0};		// crc 버퍼
+	unsigned char Total_buf[TOTAL_SIZE] = {0};	// 토탈 버퍼
 	unsigned int crc;
 	FILE *fp;
 	int buffer;
+	int j = 0;
 	
 
 	if((fp = fopen(argv[1], "r"))==NULL)
@@ -53,34 +56,49 @@ int HDLC_encoding(char** argv)
 		exit(1);
 	}
 
+
 	//test!!!! 10 바이트씩 끝까지 읽기
-	while ((buffer = fread(buffLen, sizeof(char), sizeof(buffLen), fp)) != 0)
+	while ((buffer = fread(data_buf, sizeof(char), sizeof(data_buf), fp)) != 0)
 	{
 		for (int i=0; i < (int)buffer; i++)
 		{
-			//printf("[%02X] ", (unsigned char)buffLen[i]);
-			//crc16_ccitt(buffLen, 10);
-			Total_buf[i+1] =buffLen[i];
+
+			if(data_buf[i] == 0x7D)
+			{
+				Total_buf[i + j + 1] = 0x7D;
+				j++;
+				Total_buf[i + j + 1] = 0x5D; 
+			}
+
+			else if(data_buf[i] == 0x7D)                                                                                                                                     
+                        {                                                                                                                                                           
+                                Total_buf[i + j + 1] = 0x7D;                                                                                                                        
+                                j++;                                                                                                                                                
+                                Total_buf[i + j + 1] = 0x5D;                                                                                                                        
+                        } 
+                                              
+			else
+				Total_buf[j+i+1] =data_buf[i]; 
 
 		}
 
-		//return crc16 code and split 2 arays
-		crc = crc16_ccitt(buffLen, DATA_SIZE);
+		crc = crc16_ccitt(data_buf, DATA_SIZE);
 		crc_buf[0] = (crc & 0xFF00) >> 8;
 		crc_buf[1] = (crc & 0x00FF);
 
 		Total_buf[0] = 0x7E;
-		Total_buf[TOTAL_SIZE -1] = 0x7E;
-		Total_buf[DATA_SIZE + CRC_SIZE -1] = crc_buf[0];
-		Total_buf[DATA_SIZE + CRC_SIZE] = crc_buf[1];
-
+		//Total_buf[TOTAL_SIZE + CRC_SIZE + j + 1] = 0x7E;
+		Total_buf[DATA_SIZE + CRC_SIZE - 1 + j] = crc_buf[0];
+		Total_buf[DATA_SIZE + CRC_SIZE +j]  = crc_buf[1];
+		Total_buf[DATA_SIZE + CRC_SIZE + j + 1] = 0x7E;
 		
-		for(int i = 0; i < TOTAL_SIZE; i++)
+		for(int i = 0; i < (DATA_SIZE + CRC_SIZE + j + 1) + 1; i++)
 			printf("[%02X] ", (unsigned char)Total_buf[i]);
 		
 
 
-
+		j = 0;
+		memset(Total_buf, 0, sizeof(Total_buf));
 		printf("\n");
 	}
 
