@@ -71,7 +71,7 @@ char*     HDLC_encoding(char* argv, int len)
 {
         unsigned char data_buf[DATA_SIZE] = {0} ;       // 데이터 버퍼
         unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
-        static unsigned char Total_buf[T0TAL_SIZE] = {0};      // total buffer
+        static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
         unsigned int crc;   // crc cost
         int j;
         

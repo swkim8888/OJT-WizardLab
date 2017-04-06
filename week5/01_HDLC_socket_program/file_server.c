@@ -4,15 +4,15 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include "hdlc.h"
 
-#define BUF_SIZE 30
 void error_handling(char *message);
 
 int main(int argc, char *argv[])
 {
 	int serv_sd, clnt_sd;
 	FILE * fp;
-	char buf[BUF_SIZE];
+	char buf[TOTAL_SIZE];
 	int read_cnt;
 
 	struct sockaddr_in serv_adr, clnt_adr;
@@ -22,6 +22,10 @@ int main(int argc, char *argv[])
 		printf("Usage: %s <port>\n", argv[0]);
 		exit(1);
 	}
+
+	// make crc table();	
+	make_crc_table();
+	//print_crc_table();
 
 	fp=fopen("file_server.c", "rb");
 	serv_sd=socket(PF_INET, SOCK_STREAM, 0);
@@ -37,18 +41,37 @@ int main(int argc, char *argv[])
 	clnt_adr_sz=sizeof(clnt_adr);
 	clnt_sd=accept(serv_sd, (struct sockaddr*)&clnt_adr, &clnt_adr_sz);
 
-	while(1)
+	/*while(1)
 	{
-		read_cnt=fread((void*)buf, 1, BUF_SIZE, fp);
-		if(read_cnt<BUF_SIZE)
+		read_cnt=fread((void*)buf, 1, 16, fp);
+		if(read_cnt < 16)
 		{
-			write(clnt_sd, buf, read_cnt);
+			//write(clnt_sd, buf, read_cnt);
+			write(clnt_sd, buf, strlen(buf));
+			printf("%s",buf);
 			break;
 		}
-		write(clnt_sd, buf, BUF_SIZE);
+		//write(clnt_sd, buf, TOTAL_SIZE);
+		//write(clnt_sd, buf, strlen(buf));
+		printf("%s",buf);
+		
+	}*/
+
+	while((read_cnt = fread((void*)buf, 1, 16, fp)) != 0)
+	{
+		if(read_cnt == 0)
+			break;
+
+		write(clnt_sd, buf, strlen(buf));
+		
+		printf("%s", buf);
+		memset(buf, 0x00, strlen(buf));	
+		//printf("%s", buf);
+
 	}
+
 	shutdown(clnt_sd, SHUT_WR);
-	read(clnt_sd, buf, BUF_SIZE);
+	read(clnt_sd, buf, TOTAL_SIZE);
 	printf("Message from client: %s \n", buf);
 
 	fclose(fp);

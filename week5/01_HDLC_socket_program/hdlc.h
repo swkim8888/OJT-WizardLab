@@ -9,4 +9,4 @@ char * HDLC_encoding(char* argv, int len);
 #define CRC_SIZE                2
 #define INIT_SIZE               1
 #define END_SIZE                1
-#define T0TAL_SIZE              50
+#define TOTAL_SIZE              50
