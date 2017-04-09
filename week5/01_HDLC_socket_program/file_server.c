@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
 		exit(1);
 	}
 
+	printf("Servier start !!!\n");
+
 	// make crc table();	
 	make_crc_table();
 	//print_crc_table();
@@ -59,15 +61,22 @@ int main(int argc, char *argv[])
 
 	while((read_cnt = fread((void*)buf, 1, 16, fp)) != 0)
 	{
-		if(read_cnt == 0)
-			break;
-
-		write(clnt_sd, buf, strlen(buf));
+		unsigned char *p;
 		
-		printf("%s", buf);
-		memset(buf, 0x00, strlen(buf));	
-		//printf("%s", buf);
+		printf("Data : <%d>, [%s]\n", (int)strlen(buf), buf);
+		printf("Decoded Hex : ");
+		data_viewer(buf, strlen(buf)); printf("\n\n"); 
 
+		p = HDLC_encoding(buf, strlen(buf));
+		printf("Decoded data : <%d> [%s]\n", (int)strlen(p) , p);
+		printf("Decoded Hex : ");
+		data_viewer(p, strlen(p)); printf("\n\n"); 
+
+		write(clnt_sd, p, strlen(p));
+		
+		memset(p, 0x00, strlen(p));
+		memset(buf, 0x00, strlen(buf));
+		
 	}
 
 	shutdown(clnt_sd, SHUT_WR);

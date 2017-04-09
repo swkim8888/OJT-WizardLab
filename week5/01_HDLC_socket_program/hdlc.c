@@ -67,39 +67,41 @@ unsigned short crc16_ccitt(const void *buf, int len)
 /*
  * HDLC encoding function 
  */
-char*     HDLC_encoding(char* argv, int len)
+char*     HDLC_encoding(char* data_buf, int len)
 {
-        unsigned char data_buf[DATA_SIZE] = {0} ;       // 데이터 버퍼
+        //unsigned char data_buf[DATA_SIZE] = {0} ;       // 데이터 버퍼
         unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
         static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
-        unsigned int crc;   // crc cost
-        int j;
+        unsigned short crc;   // crc cost
+        int j=0;
         
         for (int i=0; i < (int)len; i++)
         {
 		// if buffer is '0x7D' then next buffer must be '0x5D'
-		if(argv[i] == 0x7D)  {
+		if(data_buf[i] == 0x7D)  {
 			Total_buf[i + j + 1] = 0x7D;
 			j++;
 			Total_buf[i + j + 1] = 0x5D;
 		}
 		// if buffer is '0x7E' then next buffer must be '0x5E'
-		else if(argv[i] == 0x7E) {                                                  
+		else if(data_buf[i] == 0x7E) {                                                  
 			Total_buf[i + j + 1] = 0x7D;                                                
 			j++;                                                    
 			Total_buf[i + j + 1] = 0x5E;                                                
 		}
 		else {
-			Total_buf[j+i+1] =argv[i];
+			Total_buf[j+i+1] =data_buf[i];
 		}
         }
         
         // calculate crc cost with data.
- 	    crc = crc16_ccitt(argv, len);
+ 	    crc = crc16_ccitt(data_buf, len);
 
         // split crc cost to two character buffer 
         crc_buf[0] = (crc & 0xFF00) >> 8;
         crc_buf[1] = (crc & 0x00FF);
+	
+	printf("crc_buf[0] : %02X, crc_buf[1] : %02X\n", crc_buf[0], crc_buf[1]);
 
         // let's bind whole buffer to total buffer.
         // total buffer consist of 
@@ -127,5 +129,13 @@ char*     HDLC_encoding(char* argv, int len)
 }
 
 
-
-
+/*
+ * Data_viewer funcition
+ */
+void data_viewer(char * data_buf, int len)
+{
+	for (int i = 0; i < len; i++)
+	{
+		printf("[%02X] ", (unsigned char)data_buf[i]);
+	}
+}
