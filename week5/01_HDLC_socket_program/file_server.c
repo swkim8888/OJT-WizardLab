@@ -63,14 +63,14 @@ int main(int argc, char *argv[])
 	{
 		unsigned char *p;
 		
-		printf("Data : <%d>, [%s]\n", (int)strlen(buf), buf);
-		printf("Decoded Hex : ");
-		data_viewer(buf, strlen(buf)); printf("\n\n"); 
+		//printf("Data : <%d>, [%s]\n", (int)strlen(buf), buf);
+		//printf("Decoded Hex : ");
+		//data_viewer(buf, strlen(buf)); printf("\n\n"); 
 
 		p = HDLC_encoding(buf, strlen(buf));
-		printf("Decoded data : <%d> [%s]\n", (int)strlen(p) , p);
-		printf("Decoded Hex : ");
-		data_viewer(p, strlen(p)); printf("\n\n"); 
+		//printf("Decoded data : <%d> [%s]\n", (int)strlen(p) , p);
+		//printf("Decoded Hex : ");
+		//data_viewer(p, strlen(p)); printf("\n\n"); 
 
 		write(clnt_sd, p, strlen(p));
 		

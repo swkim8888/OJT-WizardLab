@@ -24,7 +24,7 @@ void make_crc_table( void ) {
         poly |= 1L << p[i];
     }
 
-    for ( i = 0; i < 256; i++ ) {
+    for ( i = 0; i < CRC_TABLE_SIZE; i++ ) {
         c = i << 8;
         for ( j = 0; j < 8; j++ ) {
             c = ( c & 0x8000 ) ? poly ^ ( c << 1 ) : ( c << 1 );
@@ -101,9 +101,7 @@ char*     HDLC_encoding(char* data_buf, int len)
         crc_buf[0] = (crc & 0xFF00) >> 8;
         crc_buf[1] = (crc & 0x00FF);
 	
-	printf("crc_buf[0] : %02X, crc_buf[1] : %02X\n", crc_buf[0], crc_buf[1]);
-
-        // let's bind whole buffer to total buffer.
+	    // let's bind whole buffer to total buffer.
         // total buffer consist of 
         // init buffer(7E) +
         // data buffer(with 5D, 5E or not ) +
@@ -120,22 +118,94 @@ char*     HDLC_encoding(char* data_buf, int len)
         // this is end buffer.
         Total_buf[len + CRC_SIZE + j + 1] = 0x7E;
 
+        // add EOF at the last array.
+        Total_buf[len + CRC_SIZE + j + 1 + 1] = '\n';
 
-        /*for(int i = 0; i < (DATA_SIZE + CRC_SIZE + j + 1) + 1; i++)
-   		printf("[%02X] ", (unsigned char)Total_buf[i]);
-
-		printf("\n");*/
         return Total_buf;
 }
 
 
 /*
- * Data_viewer funcition
+ * HDLC decoding function 
  */
+char*     HDLC_decoding(char* data_buf, int len)
+{
+//     	unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
+        static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
+        static unsigned char Temp_buf[TOTAL_SIZE] = {0};
+//	unsigned short crc;   // crc cost
+        static int data_flag = 0; 
+	static int i = 0;
+	int j=0;
+
+
+        while (len--) 
+	{
+		if(data_buf[i] == 0x7E) 
+		{
+			data_flag++;
+		}
+		else 
+		{
+			Total_buf[i] = data_buf[i];
+			i++;
+		}
+	}
+
+	if(data_flag == 2)
+	{
+		i = 0;
+		data_flag = 0;
+		return Total_buf;
+		memset(Total_buf, 0x00, 50);
+	}
+	else {
+		
+	}
+}
+        
+
+/*
+ *
+ */
+
+void decoded_file_gen(const char * file_r, const char * file_w)
+{
+	FILE *pFile_r = NULL;
+	FILE *pFile_w = NULL;
+	
+	pFile_r = fopen( file_r, "r");
+        if(pFile_r != 0)
+        {
+                char strTemp[TOTAL_SIZE];
+                char *pStr;
+		char *test;
+
+                while( !feof( pFile_r ) ) 
+                {   
+                        pStr = fgets( strTemp, sizeof(strTemp), pFile_r );
+                        
+			test = HDLC_decoding(strTemp, strlen(strTemp));
+		
+
+			//	data_viewer(strTemp,strlen(strTemp));
+			data_viewer(test, strlen(test));
+				
+			//printf( "%s", strTemp );
+                        //printf( "%s", pStr );
+                }   
+                fclose( pFile_r );
+        }
+}
+
+
+
+
 void data_viewer(char * data_buf, int len)
 {
 	for (int i = 0; i < len; i++)
 	{
 		printf("[%02X] ", (unsigned char)data_buf[i]);
 	}
+    printf("\n");
 }

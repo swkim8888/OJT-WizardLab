@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 	int sd;
 	FILE *fp;
-
+	
 	char buf[TOTAL_SIZE];
 	int read_cnt;
 	struct sockaddr_in serv_adr;
@@ -32,13 +32,18 @@ int main(int argc, char *argv[])
 
 	connect(sd, (struct sockaddr*)&serv_adr, sizeof(serv_adr));
 
-	while((read_cnt=read(sd, buf, TOTAL_SIZE))!=0)
+	while((read_cnt = read(sd, buf, TOTAL_SIZE))!=0)
+	{
 		fwrite((void*)buf, 1, read_cnt, fp);
-
+	}
+	
 	puts("Received file data");
 	write(sd, "thank you", 10);
 	fclose(fp);
 	close(sd);
+
+	decoded_file_gen("receive.dat", "aaaaaa");	
+
 	return 0;
 }
 
