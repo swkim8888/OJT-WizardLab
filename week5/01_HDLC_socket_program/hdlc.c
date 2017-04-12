@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "hdlc.h"
 
@@ -101,7 +102,9 @@ char*     HDLC_encoding(char* data_buf, int len)
         crc_buf[0] = (crc & 0xFF00) >> 8;
         crc_buf[1] = (crc & 0x00FF);
 	
-	    // let's bind whole buffer to total buffer.
+	printf("crc[0] : %02X, crc[1] : %02X\n ", crc_buf[0], crc_buf[1]);
+
+	// let's bind whole buffer to total buffer.
         // total buffer consist of 
         // init buffer(7E) +
         // data buffer(with 5D, 5E or not ) +
@@ -118,9 +121,6 @@ char*     HDLC_encoding(char* data_buf, int len)
         // this is end buffer.
         Total_buf[len + CRC_SIZE + j + 1] = 0x7E;
 
-        // add EOF at the last array.
-        Total_buf[len + CRC_SIZE + j + 1 + 1] = '\n';
-
         return Total_buf;
 }
 
@@ -131,37 +131,20 @@ char*     HDLC_encoding(char* data_buf, int len)
 char*     HDLC_decoding(char* data_buf, int len)
 {
 //     	unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
-        static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
-        static unsigned char Temp_buf[TOTAL_SIZE] = {0};
-//	unsigned short crc;   // crc cost
-        static int data_flag = 0; 
-	static int i = 0;
-	int j=0;
-
-
-        while (len--) 
+        //static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
+        // static unsigned char Temp_buf[TOTAL_SIZE] = {0};
+//	//unsigned short crc;   // crc cost
+        //static int data_flag = 0; 
+	//static int i = 0;
+	//int j=0;
+	//
+	
+	for (int i = 0; i < len; i++)
 	{
-		if(data_buf[i] == 0x7E) 
-		{
-			data_flag++;
-		}
-		else 
-		{
-			Total_buf[i] = data_buf[i];
-			i++;
-		}
+		printf("[%02X] ", (unsigned char)data_buf[i]);
 	}
+		 printf("\n");
 
-	if(data_flag == 2)
-	{
-		i = 0;
-		data_flag = 0;
-		return Total_buf;
-		memset(Total_buf, 0x00, 50);
-	}
-	else {
-		
-	}
 }
         
 
@@ -171,32 +154,86 @@ char*     HDLC_decoding(char* data_buf, int len)
 
 void decoded_file_gen(const char * file_r, const char * file_w)
 {
-	FILE *pFile_r = NULL;
-	FILE *pFile_w = NULL;
+	unsigned char *buffer;
+	unsigned char *p;
+	unsigned char temp[TOTAL_SIZE] = {0};
+	int size;
+	int count;
+	int init_end_flags = 0;
+	int j = 0;
 	
-	pFile_r = fopen( file_r, "r");
-        if(pFile_r != 0)
-        {
-                char strTemp[TOTAL_SIZE];
-                char *pStr;
-		char *test;
+	FILE *pFile_r = fopen(file_r, "r");
+	//FILE *pFile_w = fopen(file_w, "wt");
 
-                while( !feof( pFile_r ) ) 
-                {   
-                        pStr = fgets( strTemp, sizeof(strTemp), pFile_r );
-                        
-			test = HDLC_decoding(strTemp, strlen(strTemp));
-		
+	fseek(pFile_r, 0, SEEK_END);
+	size = ftell(pFile_r);
 
-			//	data_viewer(strTemp,strlen(strTemp));
-			data_viewer(test, strlen(test));
-				
-			//printf( "%s", strTemp );
-                        //printf( "%s", pStr );
-                }   
-                fclose( pFile_r );
-        }
+	buffer = malloc(size + 1);
+
+	memset(buffer, 0, size + 1);
+
+	fseek(pFile_r, 0, SEEK_SET);
+	count = fread(buffer, size, 1, pFile_r);
+
+
+
+	printf ("size: %d, count: %d\n", size, count);
+	
+	for(int i = 0; i < size; i++)
+	{
+		temp[j] = buffer[i]; 
+		j++;
+
+		if(buffer[i] == 0x7E)
+			init_end_flags++;
+
+		if(init_end_flags == 2)
+		{
+			int j = 0;
+			init_end_flags = 0;
+		 	//p = HDLC_decoding(temp, data_length(temp, HDLC_DATA));
+			//memset(temp, 0x00, TOTAL_SIZE);
+		}
+	}
+
+	
+	
+
+	fclose(pFile_r);
+
+	free(buffer);
+
 }
+
+
+unsigned int data_length(char* data_buf, int opt)
+{
+	int init_end_flags = 0;
+
+	
+	for(int i = 0; i < TOTAL_SIZE; i++)
+	{
+		if(data_buf[i]  == 0x7E)
+			init_end_flags++;
+
+		if(init_end_flags == 2)
+		{
+			switch(opt) {
+				case HDLC_DATA :
+					return i+1;
+
+				case ORG_CRC_DATA :
+					return i + 1 -2;
+
+				case ORG_DATA :
+					return i + 1 -4;
+			}
+		}
+	}
+}
+
+					
+	
 
 
 

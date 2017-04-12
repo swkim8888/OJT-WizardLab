@@ -59,23 +59,21 @@ int main(int argc, char *argv[])
 		
 	}*/
 
-	while((read_cnt = fread((void*)buf, 1, 16, fp)) != 0)
+	while((read_cnt = fread((void*)buf, 1, DATA_SIZE, fp)) != 0)
 	{
 		unsigned char *p;
-		
-		//printf("Data : <%d>, [%s]\n", (int)strlen(buf), buf);
-		//printf("Decoded Hex : ");
-		//data_viewer(buf, strlen(buf)); printf("\n\n"); 
+	
+		data_viewer(buf, strlen(buf));		// check origin data
 
 		p = HDLC_encoding(buf, strlen(buf));
-		//printf("Decoded data : <%d> [%s]\n", (int)strlen(p) , p);
-		//printf("Decoded Hex : ");
-		//data_viewer(p, strlen(p)); printf("\n\n"); 
+		data_viewer(p, data_length(p, HDLC_DATA));		// check encoded data
 
-		write(clnt_sd, p, strlen(p));
+		printf("\n");
+
+		write(clnt_sd, p, data_length(p, HDLC_DATA));
 		
-		memset(p, 0x00, strlen(p));
-		memset(buf, 0x00, strlen(buf));
+		memset(p, 0x00, TOTAL_SIZE);
+		memset(buf, 0x00, TOTAL_SIZE);
 		
 	}
 

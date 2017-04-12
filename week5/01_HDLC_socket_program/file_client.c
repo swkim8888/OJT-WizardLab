@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 	int sd;
 	FILE *fp;
 	
-	char buf[TOTAL_SIZE];
+	char buf[TOTAL_SIZE] = {0};
 	int read_cnt;
 	struct sockaddr_in serv_adr;
 	
@@ -34,9 +34,11 @@ int main(int argc, char *argv[])
 
 	while((read_cnt = read(sd, buf, TOTAL_SIZE))!=0)
 	{
+		//data_viewer(buf, strlen(buf));
 		fwrite((void*)buf, 1, read_cnt, fp);
+		memset(buf, 0x00, TOTAL_SIZE);
 	}
-	
+
 	puts("Received file data");
 	write(sd, "thank you", 10);
 	fclose(fp);
