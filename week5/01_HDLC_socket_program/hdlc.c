@@ -189,11 +189,13 @@ void decoded_file_gen(const char * file_r, const char * file_w)
 
 		if(init_end_flags == 2)
 		{
-			int j = 0;
 			init_end_flags = 0;
-		 	//p = HDLC_decoding(temp, data_length(temp, HDLC_DATA));
-			//memset(temp, 0x00, TOTAL_SIZE);
+			printf("%s\n ", temp);
+		 	HDLC_decoding(temp, j);
+			memset(temp, 0x00, j);
+			j = 0;
 		}
+
 	}
 
 	
