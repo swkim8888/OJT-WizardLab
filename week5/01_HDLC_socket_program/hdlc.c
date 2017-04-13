@@ -74,7 +74,9 @@ char*     HDLC_encoding(char* data_buf, int len)
         unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
         static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
         unsigned short crc;   // crc cost
-        int j=0;
+        int to_crc_low_len = 0;		// length from init buffer to the low crc buffer
+        int to_crc_high_len = 0;	// length from init buffer to the high crc buffer
+	int j=0;
         
         for (int i=0; i < (int)len; i++)
         {
@@ -115,11 +117,38 @@ char*     HDLC_encoding(char* data_buf, int len)
         
         // j is crc indication variable. so left buffer has lower crc cost
         // and right buffer has upper crc cost. 
-        Total_buf[len + CRC_SIZE - 1 + j] = crc_buf[0];
-        Total_buf[len + CRC_SIZE +j]  = crc_buf[1];
+        if (crc_buf[0] == 0x7E) {
+		Total_buf[len + CRC_SIZE - 1 + j] = 0x7D;
+		Total_buf[len + CRC_SIZE - 1 + j + 1] = 0x5E;
+		to_crc_low_len = len + CRC_SIZE -1 +j +1;
+	}
+        else if (crc_buf[0] == 0x7D) {
+		Total_buf[len + CRC_SIZE - 1 + j] = 0x7D;
+		Total_buf[len + CRC_SIZE - 1 + j + 1] = 0x5D;
+		to_crc_low_len = len + CRC_SIZE -1 +j +1 ;
+	}
+	else {
+		Total_buf[len + CRC_SIZE - 1 + j] = crc_buf[0];
+		to_crc_low_len = len + CRC_SIZE -1 +j;
+	}
+
+        if (crc_buf[1] == 0x7E) {
+		Total_buf[to_crc_low_len + 1 ] = 0x7D;
+		Total_buf[to_crc_low_len + 2] = 0x5E;
+		to_crc_high_len = to_crc_low_len + 2;
+	}
+        else if (crc_buf[1] == 0x7D) {
+		Total_buf[to_crc_low_len + 1] = 0x7D;
+		Total_buf[to_crc_low_len + 2] = 0x5D;
+		to_crc_low_len = to_crc_low_len + 2 ;
+	}
+	else {
+		Total_buf[to_crc_low_len + 1] = crc_buf[1];
+		to_crc_high_len = to_crc_low_len + 1;
+	}
      
         // this is end buffer.
-        Total_buf[len + CRC_SIZE + j + 1] = 0x7E;
+        Total_buf[to_crc_high_len + 1] = 0x7E;
 
         return Total_buf;
 }
@@ -130,20 +159,42 @@ char*     HDLC_encoding(char* data_buf, int len)
  */
 char*     HDLC_decoding(char* data_buf, int len)
 {
-//     	unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
-        //static unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
-        // static unsigned char Temp_buf[TOTAL_SIZE] = {0};
-//	//unsigned short crc;   // crc cost
+     	unsigned char crc_buf[CRC_SIZE] = {0};          // crc buffer
+        unsigned char Total_buf[TOTAL_SIZE] = {0};      // total buffer
+        unsigned char Temp_buf[TOTAL_SIZE] = {0};	// temp buffer
+//	//unsigned short 8crc;   // crc cost
         //static int data_flag = 0; 
 	//static int i = 0;
-	//int j=0;
-	//
+	int org_data_len = 0;
+	int j=0;
 	
+
 	for (int i = 0; i < len; i++)
 	{
-		printf("[%02X] ", (unsigned char)data_buf[i]);
+		if(data_buf[i] != 0x7E) {
+			if(data_buf[i] == 0x7D && data_buf[i+1] == 0x5D)
+			{
+				Total_buf[j] = 0x7D;
+				j++; i++;
+			}
+			else if (data_buf[i] == 0x7D && data_buf[i+1] == 0x5E)
+			{	Total_buf[j] = 0x7E;
+				j++; i++;
+			}
+			else {
+				Total_buf[j] = data_buf[i];
+				j++;
+			}
+		}
 	}
-		 printf("\n");
+
+	for (int i = 0; i< j - CRC_SIZE ; i++)
+	{
+		printf("[%02X] ", (unsigned char)Total_buf[i]);
+	}
+	printf("\n");
+	printf("CRC[0] : %02X, CRC[1] : %02X", Total_buf[j - 2], Total_buf[j - 1]);
+	printf("\n");
 
 }
         
@@ -190,7 +241,7 @@ void decoded_file_gen(const char * file_r, const char * file_w)
 		if(init_end_flags == 2)
 		{
 			init_end_flags = 0;
-			printf("%s\n ", temp);
+			//printf("%s\n ", temp);
 		 	HDLC_decoding(temp, j);
 			memset(temp, 0x00, j);
 			j = 0;
